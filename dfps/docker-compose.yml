@@ -1,0 +1,18 @@
+version: '2'
+services:
+  wget:
+    build: 
+      context: wget/.
+      args: 
+         file_path: /usr
+    depends_on:
+     - nginx
+    container_name: wget
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - /Users/bajones/dfps_repository:/var/lib/html
+    ports:
+      - 80:80
+      - 443:443

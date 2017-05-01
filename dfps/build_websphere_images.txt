@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+
+###################################################
+# Docker Machine Minimums
+###################################################
+# RAM:
+# - 2GB for WPS
+# - 1GB for WAS
+# - 1GB for Oracle 12c
+#
+# Disk:
+# - 3GB for WAS
+# - 6GB for WPS (running)
+# - 15GB for WPS (install & update via this script)
+# - 10GB for deployments
+# - 15GB for Oracle 12c with training DB
+###################################################
+
+# Example of creating docker machine on OS X using VMware Fusion
+#   with 4GB of RAM and 40GB of disk named "tdfps"
+#
+# docker-machine create --driver vmwarefusion --vmwarefusion-cpu-count=2 \
+#    --vmwarefusion-disk-size=40960 --vmwarefusion-memory-size=4096 tdfps
+
+# Determine script directory
+SOURCE="${BASH_SOURCE[0]}"
+SCRIPT=$(basename ${SOURCE})
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname"$SOURCE" )" && pwd )"
+  SOURCE="$(readlink"$SOURCE")"
+  [[ ${SOURCE} != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$(dirname "$SOURCE")" && pwd )"
+
+NORM=`tput sgr0`
+BOLD=`tput bold`
+REV=`tput smso`
+
+ccred='\033[0;31m'
+ccyellow='\033[0;33m'
+ccgreen='\033[32m'
+ccend='\033[0m'
+
+echo_red() {
+    echo -e "${ccred}$@${ccend}"
+}
+
+echo_yellow() {
+    echo -e "${ccyellow}$@${ccend}"
+}
+
+echo_green() {
+    echo -e "${ccgreen}$@${ccend}"
+}
+
+show_help() {
+  echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
+  echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT${NORM}"\\n
+  echo -e "Command line switches are optional. The following switches are recognized."\\n
+  echo "${REV}-m${NORM}  [machine_name] Sets the name of the Docker machine to use. Default is none."
+  echo "${REV}-k${NORM}  Keep intermediate (un-patched) images."
+  echo -e "${REV}-h${NORM}  Displays this help message. No further functions are performed."\\n
+  echo -e "Example: ${BOLD}$SCRIPT -m dfps${NORM}"\\n
+  exit 0
+}
+
+OPTIND=1
+while getopts "h?sm:" opt; do
+    case "$opt" in
+    h|\?)
+        show_help
+        exit 0
+        ;;
+    m)  machine_name=$OPTARG
+        echo_green "Using Docker Machine: ${machine_name}"
+        ;;
+    s)  keep_intermediate="true"
+        ;;
+    esac
+done
+
+if [ -z "${machine_name}" ]; then
+  DOCKER_CMD="docker"
+  IP=127.0.0.1
+else
+  DOCKER_CMD="docker $(docker-machine config ${machine_name})"
+  IP=$(docker-machine ip ${machine_name})
+fi
+
+${DOCKER_CMD} info 2> /dev/null
+
+if [ $? -ne 0 ]; then
+  echo_red "Docker daemon not available; do you need to specify a machine name (-m [machine_name])?" >&2
+  exit 1
+fi
+
+# We need to change the current directory, so be nice and remember where we were
+pushd .
+
+echo_green "Base..."
+${DOCKER_CMD} build -t "tdfps/ibm-base:latest" ${DIR}/ibm-base
+
+echo_green "Starting Apache Server..."
+${DOCKER_CMD} run -d -p 80:80 --name apache -v ${DIR}/repo:/usr/local/apache2/htdocs/ httpd:2.4
+APACHE_IM_HOST=$(${DOCKER_CMD} run --rm -it --link apache:apache ubuntu:trusty \
+                       sh -c 'echo "${APACHE_PORT_80_TCP_ADDR}"' | \
+                       sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+echo_green "IM HTTP Host is: ${APACHE_IM_HOST}"
+
+echo_green "IBM IM..."
+${DOCKER_CMD} build \
+    --build-arg APACHE_IM_HOST=${APACHE_IM_HOST} \
+    -t "tdfps/ibm-im:latest" \
+    -t "tdfps/ibm-im:1.8.1" \
+    ${DIR}/ibm-im
+
+IBM_REPOSITORY=${IBM_REPOSITORY:-http://${APACHE_IM_HOST}/dfps4svapp21/dfps_repository/}
+echo_green "Using repository: ${IBM_REPOSITORY}"
+
+echo_green "WebSphere 8.5.5..."
+${DOCKER_CMD} build \
+    --build-arg IBM_REPOSITORY="${IBM_REPOSITORY}" \
+    -t "tdfps/was:8556" \
+    -t "tdfps/was:latest" \
+    ${DIR}/was
+
+echo_green "Creating minimal image with \"appsvc\" profile..."
+# Create the profile and switch its JDK
+${DOCKER_CMD} build \
+    -t "tdfps/appsvc:latest" \
+    ${DIR}/appsvc
+
+# TODO: Add Dockerfile with WAS start commands to setup development
+
+echo_green "WebSphere Portal 8.5..."
+${DOCKER_CMD} build \
+    --build-arg IBM_REPOSITORY="${IBM_REPOSITORY}" \
+    -t "tdfps/wps:85CF7" \
+    -t "tdfps/wps:latest" \
+    ${DIR}/wps
+
+echo_green
+${DOCKER_CMD} rm -f apache
+echo_green "Stopped HTTP Server"
+
+# TODO: Consider transferring the DB for better performance?
+
+# TODO: Add Dockerfile with WAS start commands to setup development
+
+# TODO: Investigate exploded ears and creating mount volume

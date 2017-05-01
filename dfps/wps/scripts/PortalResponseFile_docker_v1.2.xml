@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--                                                             -->
+<!-- Sample response file for WebSphere Portal Server      -->
+<!-- with default values for Linux, HP-UX, and Oracle Solaris                                -->
+<!--                                                             -->
+<agent-input clean="true" temporary="true">
+    <variables>
+        <variable name='repositoryLocation'/>
+        <variable name='profileName' value='wp_profile'/>
+        <variable name='cellName' value='cell1'/>
+        <variable name='nodeName' value='webnode1'/>
+        <variable name='hostName' value='web'/>
+    </variables>
+    <server>
+        <repository location='${repositoryLocation}'/>
+    </server>
+    <!-- Listing of products and fixes to be installed -->
+    <install modify='false'>
+        <!-- To install Portal in binary-only mode, remove "portal.profile" from the list of features in the line below -->
+        <offering id='com.ibm.websphere.PORTAL.SERVER.v85' version='8.5.0.20140424_2155'
+                  profile='IBM WebSphere Portal Server V8.5'
+                  features='ce.install,portal.binary,portal.profile'
+                  installFixes='none'/>
+<!--
+        <offering id='com.ibm.websphere.PORTAL.SERVER.v85'
+                  profile='IBM WebSphere Portal Server V8.5'
+                  features='ce.install,portal.binary,portal.profile'
+                  installFixes='none'/>
+-->
+    </install>
+    <profile id='IBM WebSphere Application Server V8.5'
+             installLocation='/apps/ibm/websphere/v855'>
+        <data key='eclipseLocation' value='/apps/ibm/websphere/v855'/>
+        <data key='user.import.profile' value='false'/>
+        <!--<data key='cic.selector.nl'-->
+              <!--value='en, fr, it, zh, ro, ru, zh_TW, de, ja, pl, es, cs, hu, ko, pt_BR'/>-->
+        <data key='cic.selector.nl' value='en'/>
+    </profile>
+    <profile id='IBM WebSphere Portal Server V8.5'
+             installLocation='/apps/ibm/websphere/portal85'>
+        <!--                                                                              -->
+        <!-- The following ten data keys must be set for all installations.               -->
+        <!--                                                                              -->
+        <data key='eclipseLocation' value='/apps/ibm/websphere/portal85'/>
+        <!-- 'user.was.installLocation'                                                    -->
+        <!-- Must match WebSphere Application Server installLocation specified above       -->
+        <data key='user.was.installLocation,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='/apps/ibm/websphere/v855'/>
+        <!-- 'user.configengine.binaryLocation'                                            -->
+        <!-- Install location for Configuration Engine files                               -->
+        <data key='user.configengine.binaryLocation,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='/apps/ibm/websphere/ConfigEngine'/>
+        <!-- 'user.wp.wasprofiles.location'                                                -->
+        <!-- Location where AppServer creates profiles by default                          -->
+        <data key='user.wp.wasprofiles.location,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='/apps/ibm/websphere/v855/profiles'/>
+        <!-- Set desired administrator ID for Configuration Wizard profile                 -->
+        <data key='user.cw.userid,com.ibm.websphere.PORTAL.SERVER.v85' value='wpsadmin'/>
+        <!-- Set desired administrator password for Configuration Wizard profile.          -->
+        <!-- This value should be in encrypted format.                                      -->
+        <!-- Use the command 'imutilsc encryptString mypassword' to return an encrypted string for mypassword -->
+        <!-- Brent - this is the same password as you wrote down on the sticky note -->
+        <data key='user.cw.password,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='4taxKp1Gj5q5aCi+LjSKHQ=='/>
+        <!--  'user.wp.base.offering': Leave as is -->
+        <data key='user.wp.base.offering,com.ibm.websphere.PORTAL.SERVER.v85' value='portal.server'/>
+        <data key='user.iim.currentlocale,com.ibm.websphere.PORTAL.SERVER.v85' value='en'/>
+        <data key='cic.selector.nl' value='en'/>
+        <data key='user.import.profile' value='false'/>
+        <!--                                                                              -->
+        <!-- Data keys below this point can be removed for binary-only installations.     -->
+        <!-- Installations that include the portal profile feature must set these keys.   -->
+        <!--                                                                              -->
+        <data key='user.wp.hostname,com.ibm.websphere.PORTAL.SERVER.v85' value='${hostName}'/>
+        <data key='user.wp.cellname,com.ibm.websphere.PORTAL.SERVER.v85' value='${cellName}'/>
+        <data key='user.wp.nodename,com.ibm.websphere.PORTAL.SERVER.v85' value='${nodeName}'/>
+        <!-- Set desired administrator ID for the Portal profile                         -->
+        <data key='user.wp.userid,com.ibm.websphere.PORTAL.SERVER.v85' value='wpsadmin'/>
+        <!-- Set desired administrator password for the Portal profile                   -->
+        <!-- This value should be in encrypted format.                                    -->
+        <data key='user.wp.password,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='4taxKp1Gj5q5aCi+LjSKHQ=='/>
+        <!-- 'user.wp.custom.contextroot','user.wp.custom.defaulthome','user.wp.custom.personalhome'  -->
+        <!-- Set desired customized URI values                                                       -->
+        <data key='user.wp.custom.contextroot,com.ibm.websphere.PORTAL.SERVER.v85' value='wps'/>
+        <data key='user.wp.custom.defaulthome,com.ibm.websphere.PORTAL.SERVER.v85' value='portal'/>
+        <data key='user.wp.custom.personalhome,com.ibm.websphere.PORTAL.SERVER.v85' value='myportal'/>
+        <!-- Set desired starting point for the block of port numbers to be reserved      -->
+        <!-- for the admin and Portal servers                                             -->
+        <data key='user.wp.starting.port,com.ibm.websphere.PORTAL.SERVER.v85' value='10012'/>
+        <!-- Set desired name for the Portal profile                                      -->
+        <data key='user.wp.profilename,com.ibm.websphere.PORTAL.SERVER.v85' value='${profileName}'/>
+        <!-- Set desired path for the Portal profile                                      -->
+        <data key='user.wp.profilepath,com.ibm.websphere.PORTAL.SERVER.v85'
+              value='/apps/ibm/websphere/v855/profiles/${profileName}'/>
+    </profile>
+    <!-- Choose a directory to cache Installation Manager artifacts                     -->
+    <preference name='com.ibm.cic.common.core.preferences.eclipseCache'
+                value='/apps/ibm/installationmanager/imshared'/>
+    <!-- Leave everything below here unchanged -->
+    <preference name='com.ibm.cic.common.core.preferences.connectTimeout'
+                value='30'/>
+    <preference name='com.ibm.cic.common.core.preferences.readTimeout'
+                value='45'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.downloadAutoRetryCount'
+            value='0'/>
+    <preference name='offering.service.repositories.areUsed' value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.ssl.nonsecureMode'
+                value='false'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication'
+            value='false'/>
+    <preference name='http.ntlm.auth.kind' value='NTLM'/>
+    <preference name='http.ntlm.auth.enableIntegrated.win32' value='true'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts'
+            value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.keepFetchedFiles'
+                value='false'/>
+    <preference name='PassportAdvantageIsEnabled' value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.searchForUpdates'
+                value='false'/>
+    <preference name='com.ibm.cic.agent.ui.displayInternalVersion'
+                value='false'/>
+    <preference name='com.ibm.cic.common.sharedUI.showErrorLog' value='true'/>
+    <preference name='com.ibm.cic.common.sharedUI.showWarningLog' value='true'/>
+    <preference name='com.ibm.cic.common.sharedUI.showNoteLog' value='true'/>
+</agent-input>

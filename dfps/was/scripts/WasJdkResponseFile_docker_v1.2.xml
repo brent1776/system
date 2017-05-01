@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent-input clean="true" temporary="true">
+    <variables>
+        <variable name='repositoryLocation'/>
+    </variables>
+    <server>
+        <!-- Fill in the locations of the WAS and Portal installation repositories       -->
+        <!-- that are accessible from the system where the install will be run.          -->
+        <!-- You can fill in the repositories separately, or you may point to            -->
+        <!-- a consolidated repository that defines all products.                        -->
+        <!-- If using separate repositories, be sure to list them in this order:         -->
+        <!--  repository location='/repository/path/for/WAS'                             -->
+        <!--  repository location='/repository/path/for/Java7'                           -->
+        <!--  repository location='/repository/path/for/PortalServer'                    -->
+        <repository location='${repositoryLocation}'/>
+    </server>
+    <!-- Listing of products and fixes to be installed -->
+    <install modify='false'>
+        <offering id='com.ibm.websphere.ND.v85'
+                  profile='IBM WebSphere Application Server V8.5'
+                  features='core.feature,ejbdeploy,thinclient,embeddablecontainer,com.ibm.sdk.6_64bit'
+                  installFixes='none'/>
+        <offering id='com.ibm.websphere.IBMJAVA.v70'
+                  profile='IBM WebSphere SDK Java Technology Edition (Optional)'
+                  features='com.ibm.sdk.7' installFixes='none'/>
+    </install>
+    <profile id='IBM WebSphere Application Server V8.5'
+             installLocation='/apps/ibm/websphere/v855'>
+        <data key='eclipseLocation' value='/apps/ibm/websphere/v855'/>
+        <data key='user.import.profile' value='false'/>
+        <data key='cic.selector.nl' value='en'/>
+        <!--<data key='cic.selector.nl'-->
+              <!--value='en, fr, it, zh, ro, ru, zh_TW, de, ja, pl, es, cs, hu, ko, pt_BR'/>-->
+    </profile>
+    <!--                                                                              -->
+    <!-- Data keys below this point can be removed for binary-only installations.     -->
+    <!-- Installations that include the portal profile feature must set these keys.   -->
+    <!--                                                                              -->
+    <!-- Choose a directory to cache Installation Manager artifacts                   -->
+    <preference name='com.ibm.cic.common.core.preferences.eclipseCache'
+                value='/apps/ibm/installationmanager/imshared'/>
+    <!-- Leave everything below here unchanged -->
+    <preference name='com.ibm.cic.common.core.preferences.connectTimeout'
+                value='30'/>
+    <preference name='com.ibm.cic.common.core.preferences.readTimeout'
+                value='45'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.downloadAutoRetryCount'
+            value='0'/>
+    <preference name='offering.service.repositories.areUsed' value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.ssl.nonsecureMode'
+                value='false'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication'
+            value='false'/>
+    <preference name='http.ntlm.auth.kind' value='NTLM'/>
+    <preference name='http.ntlm.auth.enableIntegrated.win32' value='true'/>
+    <preference
+            name='com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts'
+            value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.keepFetchedFiles'
+                value='false'/>
+    <preference name='PassportAdvantageIsEnabled' value='false'/>
+    <preference name='com.ibm.cic.common.core.preferences.searchForUpdates'
+                value='false'/>
+    <preference name='com.ibm.cic.agent.ui.displayInternalVersion'
+                value='false'/>
+    <preference name='com.ibm.cic.common.sharedUI.showErrorLog' value='true'/>
+    <preference name='com.ibm.cic.common.sharedUI.showWarningLog' value='true'/>
+    <preference name='com.ibm.cic.common.sharedUI.showNoteLog' value='true'/>
+</agent-input>
